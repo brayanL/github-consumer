@@ -62,8 +62,8 @@ const mainLayoutStyles = makeStyles((theme) => ({
     },
     appBarSpacer: theme.mixins.toolbar,
     content: {
-        flexGrow: 1,
-        height: '100vh',
+        flex: 1,
+        minHeight: '100vh',
         overflow: 'auto',
     },
     container: {

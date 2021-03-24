@@ -6,6 +6,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import useAxios from "axios-hooks";
 
 import GeneralInfo from "./GeneralInfo";
+import Repositories from "./Repositories";
+import RetryData from "../common/RetryData";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,9 +27,24 @@ export default function SearchGithubUser(): JSX.Element {
   const classes = useStyles();
   const [username, setUsername] = React.useState<string>('');
   const [{data, error, loading}, fetchUser] = useAxios({ baseURL: 'https://api.github.com/' }, { manual: true });
+  console.log('error: ', error?.response?.status);
 
   function getUserInfo() {
     fetchUser({ url: `users/${username}` });
+  }
+
+  function renderContent(): JSX.Element {
+    return (
+      (data && !error) && (
+        <>
+          <Grid item xs={12}>
+            <GeneralInfo user={data} />
+          </Grid>
+          <Grid item xs={12}>
+            <Repositories url={data.repos_url} />
+          </Grid>
+        </>
+    ));
   }
 
   return (
@@ -73,7 +90,8 @@ export default function SearchGithubUser(): JSX.Element {
         </Grid>
       </Grid>
       <Grid container direction="column">
-        {data && <GeneralInfo user={data} />}
+        {error?.response?.status === 404 && <RetryData onClickHandler={getUserInfo} />}
+        {renderContent()}
       </Grid>
     </div>
   );
