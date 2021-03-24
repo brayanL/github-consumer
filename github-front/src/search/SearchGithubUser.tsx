@@ -1,0 +1,80 @@
+import React from 'react';
+import { Button, CircularProgress, Grid, IconButton, TextField, Tooltip } from "@material-ui/core";
+import SearchIcon from '@material-ui/icons/Search';
+import SaveIcon from '@material-ui/icons/Save';
+import { makeStyles } from "@material-ui/core/styles";
+import useAxios from "axios-hooks";
+
+import GeneralInfo from "./GeneralInfo";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  paper: {
+    padding: theme.spacing(2),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+  },
+  button: {
+    margin: theme.spacing(1),
+  },
+}));
+
+export default function SearchGithubUser(): JSX.Element {
+  const classes = useStyles();
+  const [username, setUsername] = React.useState<string>('');
+  const [{data, error, loading}, fetchUser] = useAxios({ baseURL: 'https://api.github.com/' }, { manual: true });
+
+  function getUserInfo() {
+    fetchUser({ url: `users/${username}` });
+  }
+
+  return (
+    <div className={classes.root}>
+      <Grid container direction="row" spacing={2}>
+        <Grid item xs={12} lg={3}>
+          <TextField
+            label="Username"
+            fullWidth
+            margin="dense"
+            variant="outlined"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            InputProps={{
+              endAdornment: (
+                <Tooltip title="Buscar" arrow>
+                  {loading
+                    ? (<CircularProgress size={20} />)
+                    : (
+                      <IconButton
+                        aria-label="search"
+                        size="small"
+                        onClick={getUserInfo}
+                      >
+                        <SearchIcon />
+                      </IconButton>
+                    )}
+                </Tooltip>
+              ),
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} lg={2}>
+          <Button
+            fullWidth
+            color="primary"
+            className={classes.button}
+            variant="contained"
+            startIcon={<SaveIcon />}
+          >
+            Guardar
+          </Button>
+        </Grid>
+      </Grid>
+      <Grid container direction="column">
+        {data && <GeneralInfo user={data} />}
+      </Grid>
+    </div>
+  );
+}
